@@ -1,0 +1,35 @@
+<!-- templates/base_generic.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Mailing Service{% endblock %}</title>
+    {% load static %} <!-- Load the static template tag library -->
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Mailing Service</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'mailing:client_list' %}">Clients</a></li>
+                <li><a href="{% url 'mailing:message_list' %}">Messages</a></li>
+                <li><a href="{% url 'mailing:mailing_list' %}">Mailings</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'account_logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'account_login' %}">Login</a></li>
+                    <li><a href="{% url 'account_signup' %}">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2024 Mailing Service</p>
+    </footer>
+</body>
+</html>
