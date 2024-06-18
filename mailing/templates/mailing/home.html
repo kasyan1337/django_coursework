@@ -1,0 +1,14 @@
+<!-- mailing/templates/mailing/home.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <h1>Django coursework</h1>
+    <h3>Mailing Service home page</h3>
+    <a href="{% url 'mailing:client_list' %}">Clients</a>
+    <a href="{% url 'mailing:message_list' %}">Messages</a>
+    <a href="{% url 'mailing:mailing_list' %}">Mailings</a>
+</body>
+</html>
