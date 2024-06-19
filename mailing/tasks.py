@@ -8,6 +8,14 @@ from django.core.mail import send_mail
 from .models import Mailing, Attempt
 
 
+# In tasks.py functions can only be defined: Actual initialization happens in mailing/apps.py
+def start():  # start a background scheduler that runs the send_mailing function every minute
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(send_mailing, trigger='interval',
+                      minutes=1)  # Can be changed to cron
+    scheduler.start()
+
+
 def send_mailing():
     zone = pytz.timezone(settings.TIME_ZONE)
     current_datetime = datetime.now(zone)
@@ -30,10 +38,3 @@ def send_mailing():
                 Attempt.objects.create(mailing=mailing, status=False, response=str(e))  # Attempt object with error msg
         mailing.status = 'completed'
         mailing.save()
-
-
-def start():  # start a background scheduler that runs the send_mailing function every minute
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(send_mailing, trigger='interval',
-                      minutes=1)  # Can be changed to cron
-    scheduler.start()
