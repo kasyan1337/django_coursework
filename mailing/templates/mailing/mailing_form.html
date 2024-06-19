@@ -1,0 +1,14 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+    <h2>{{ form.instance.pk|yesno:"Edit Mailing,Add New Mailing" }}</h2>
+    <p>Current server time: {% now "Y-m-d H:i:s" %}</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+        <a href="{% url 'mailing:mailing_list' %}">Cancel</a>
+    </form>
+</div>
+{% endblock %}

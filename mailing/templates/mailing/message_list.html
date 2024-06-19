@@ -1,0 +1,13 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+  <h2>Messages</h2>
+  <a href="{% url 'mailing:message_create' %}">Add new message</a>
+  <ul>
+    {% for message in messages %}
+      <li>{{ message.subject }} - <a href="{% url 'mailing:message_update' message.pk %}">Edit</a> - <a href="{% url 'mailing:message_delete' message.pk %}">Delete</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

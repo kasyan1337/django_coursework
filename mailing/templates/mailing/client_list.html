@@ -1,0 +1,16 @@
+<!-- templates/mailing/client_list.html -->
+{% extends 'base_generic.html' %}
+
+{% block title %}Clients{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+  <h2>Clients</h2>
+  <a href="{% url 'mailing:client_create' %}">Add new client</a>
+  <ul>
+    {% for client in clients %}
+      <li>{{ client.email }} - <a href="{% url 'mailing:client_update' client.pk %}">Edit</a> - <a href="{% url 'mailing:client_delete' client.pk %}">Delete</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

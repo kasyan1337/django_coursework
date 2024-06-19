@@ -1,0 +1,12 @@
+<!-- mailing/templates/mailing/home.html -->
+{% extends 'base_generic.html' %}
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+    <body>
+    <h1>Mailing Service home page</h1>
+    <a href="{% url 'mailing:client_list' %}">Clients</a>
+    <a href="{% url 'mailing:message_list' %}">Messages</a>
+    <a href="{% url 'mailing:mailing_list' %}">Mailings</a>
+    </body>
+</div>
+{% endblock %}
