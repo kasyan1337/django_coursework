@@ -20,5 +20,7 @@ class MailingForm(forms.ModelForm):
         model = Mailing
         fields = ['start_time', 'period', 'status', 'message', 'clients', 'owner']
         widgets = {
+            'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            # necessary for the correct format of the date and time input field
             'clients': forms.CheckboxSelectMultiple(),
         }  # a widget that allows the user to select multiple clients from a list of checkboxes.

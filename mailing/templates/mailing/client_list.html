@@ -9,7 +9,7 @@
   <a href="{% url 'mailing:client_create' %}">Add new client</a>
   <ul>
     {% for client in clients %}
-      <li>{{ client.email }} - <a href="{% url 'client_update' client.pk %}">Edit</a> - <a href="{% url 'client_delete' client.pk %}">Delete</a></li>
+      <li>{{ client.email }} - <a href="{% url 'mailing:client_update' client.pk %}">Edit</a> - <a href="{% url 'mailing:client_delete' client.pk %}">Delete</a></li>
     {% endfor %}
   </ul>
 </div>

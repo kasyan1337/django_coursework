@@ -2,12 +2,15 @@
 
 {% block content %}
 <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
-  <h2>Mailings</h2>
-  <a href="{% url 'mailing:mailing_create' %}">Add new mailing</a>
-  <ul>
-    {% for mailing in mailings %}
-      <li>{{ mailing }} - <a href="{% url 'mailing:mailing_update' mailing.pk %}">Edit</a> - <a href="{% url 'mailing:mailing_delete' mailing.pk %}">Delete</a></li>
-    {% endfor %}
-  </ul>
+    <h2>Mailings</h2>
+    <p>Current server time: {% now "Y-m-d H:i:s" %}</p>
+
+    <a href="{% url 'mailing:mailing_create' %}">Add new mailing</a>
+    <ul>
+        {% for mailing in mailings %}
+        <li>{{ mailing }} - <a href="{% url 'mailing:mailing_update' mailing.pk %}">Edit</a> - <a
+                href="{% url 'mailing:mailing_delete' mailing.pk %}">Delete</a></li>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}
