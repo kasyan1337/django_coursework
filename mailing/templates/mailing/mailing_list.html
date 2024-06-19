@@ -1,6 +1,7 @@
 {% extends 'base_generic.html' %}
 
 {% block content %}
+<div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
   <h2>Mailings</h2>
   <a href="{% url 'mailing:mailing_create' %}">Add new mailing</a>
   <ul>
@@ -8,4 +9,5 @@
       <li>{{ mailing }} - <a href="{% url 'mailing:mailing_update' mailing.pk %}">Edit</a> - <a href="{% url 'mailing:mailing_delete' mailing.pk %}">Delete</a></li>
     {% endfor %}
   </ul>
+</div>
 {% endblock %}

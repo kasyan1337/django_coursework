@@ -1,10 +1,13 @@
 {% extends 'base_generic.html' %}
 
 {% block content %}
+<div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
   <h2>{{ form.instance.pk|yesno:"Edit Message,Add New Message" }}</h2>
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Save</button>
   </form>
+    <a href="{% url 'mailing:message_list' %}">Cancel</a>
+</div>
 {% endblock %}

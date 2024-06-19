@@ -1,6 +1,7 @@
 {% extends 'base_generic.html' %}
 
 {% block content %}
+<div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
   <h2>Delete Mailing</h2>
   <p>Are you sure you want to delete Mailing {{ mailing.id }}?</p>
   <form method="post">
@@ -8,4 +9,5 @@
     <button type="submit">Yes, delete</button>
   </form>
   <a href="{% url 'mailing:mailing_list' %}">Cancel</a>
+</div>
 {% endblock %}
