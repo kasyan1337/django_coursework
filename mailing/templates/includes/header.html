@@ -5,9 +5,13 @@
         <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:client_list' %}">Clients</a>
         <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:message_list' %}">Messages</a>
         <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_list' %}">Mailings</a>
+        {% if is_manager or request.user.is_staff %}
+        <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:user_list' %}">Users</a>
+        {% endif %}
     </nav>
     <nav class="ms-auto d-flex align-items-center">
         {% if user.is_authenticated %}
+        <span class="p-2">{{ user.email }}</span>
         <a class="p-2 btn btn-outline-primary" href="{% url 'account_logout' %}">Logout</a>
         {% else %}
         <a class="p-2 btn btn-outline-primary" href="{% url 'account_login' %}">Login</a>

@@ -1,0 +1,14 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+    <h2>Login</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+    <a href="{% url 'account_reset_password' %}">Forgot password?</a>
+    <p>Don't have an account? <a href="{% url 'account_signup' %}">Sign Up</a></p>
+</div>
+{% endblock %}
