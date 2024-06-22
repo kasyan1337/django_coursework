@@ -8,8 +8,24 @@
     <a href="{% url 'mailing:mailing_create' %}">Add new mailing</a>
     <ul>
         {% for mailing in mailings %}
-        <li>{{ mailing }} - <a href="{% url 'mailing:mailing_update' mailing.pk %}">Edit</a> - <a
-                href="{% url 'mailing:mailing_delete' mailing.pk %}">Delete</a></li>
+        <li>Author: {{ mailing.owner }}</span> Start Time: {{ mailing.start_time }} Result: {{ mailing.status }}-
+            {% if mailing.is_active %}
+            <span>Status: Active</span>
+            {% if mailing.owner == user or request.user.is_staff %}
+            <a href="{% url 'mailing:mailing_update' mailing.pk %}">Edit</a> -
+            <a href="{% url 'mailing:mailing_delete' mailing.pk %}">Delete</a>
+            {% elif is_manager %}
+            <a href="{% url 'mailing:mailing_update' mailing.pk %}">View</a>
+            <a href="{% url 'mailing:disable_mailing' mailing.pk %}">Disable</a>
+            {% endif %}
+            {% else %}
+            <span>Status: Disabled</span>
+            {% if is_manager or request.user.is_staff %}
+            <a href="{% url 'mailing:mailing_update' mailing.pk %}">View</a>
+            <a href="{% url 'mailing:enable_mailing' mailing.pk %}">Enable</a>
+            {% endif %}
+            {% endif %}
+        </li>
         {% endfor %}
     </ul>
 </div>

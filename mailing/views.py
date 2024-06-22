@@ -1,20 +1,90 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .forms import ClientForm, MessageForm, MailingForm
-from .models import Client, Message, Mailing
+from .models import Client, Message, Mailing, CustomUser
+
+User = get_user_model()
 
 
 def home(request):
-    return render(request, 'mailing/home.html')
+    return render(request, 'mailing/home.html', {'can_view_users': request.user.has_perm('mailing.view_customuser'),
+                                                 'is_manager': is_manager(request.user), })
+
+
+def is_manager(user):
+    return user.groups.filter(name='managers').exists()
+
+
+@login_required
+def user_list(request):
+    if request.user.has_perm('mailing.view_customuser'):
+        users = CustomUser.objects.all
+        return render(request, 'mailing/user_list.html',
+                      {'users': users, 'can_view_users': request.user.has_perm('mailing.view_customuser'),
+                       'is_manager': is_manager(request.user), })
+    else:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+
+
+@login_required
+def block_user(request, user_id):
+    if request.user.has_perm('mailing.change_customuser'):
+        user = get_object_or_404(User, pk=user_id)
+        user.is_active = False
+        user.save()
+        return redirect('mailing:user_list')
+    else:
+        return HttpResponseForbidden("You do not have permission to perform this action.")
+
+
+@login_required
+def unblock_user(request, user_id):
+    if request.user.has_perm('mailing.change_customuser'):
+        user = get_object_or_404(User, pk=user_id)
+        user.is_active = True
+        user.save()
+        return redirect('mailing:user_list')
+    else:
+        return HttpResponseForbidden("You do not have permission to perform this action.")
+
+
+@login_required
+def disable_mailing(request, pk):
+    if request.user.is_staff or is_manager(request.user):
+        mailing = get_object_or_404(Mailing, pk=pk)
+        mailing.is_active = False
+        mailing.save()
+        return redirect('mailing:mailing_list')
+
+
+def enable_mailing(request, pk):
+    if request.user.is_staff or is_manager(request.user):
+        mailing = get_object_or_404(Mailing, pk=pk)
+        mailing.is_active = True
+        mailing.save()
+        return redirect('mailing:mailing_list')
+
 
 # CRUD FOR USER
 
 @login_required
 def client_list(request):
-    clients = Client.objects.all()
-    return render(request, 'mailing/client_list.html',  # needs to be created
-                  {'clients': clients})  # context is a dictionary that is passed to the template
+    if request.user.is_staff:
+        clients = Client.objects.all()
+    elif is_manager(request.user):
+        clients = Client.objects.all()
+    else:
+        clients = Client.objects.filter(owner=request.user)
+
+    return render(request, 'mailing/client_list.html', {
+        'clients': clients,
+        'is_manager': is_manager(request.user),
+        'can_view_users': request.user.has_perm('mailing.view_customuser')
+    })
 
 
 @login_required
@@ -25,25 +95,34 @@ def client_create(request):
         # For example, if a required field is missing or
         # if an email field contains an improperly formatted email address
         if form.is_valid():
-            form.save()
+            client = form.save(commit=False)  # Don't save yet, only create the object, otherwise IntegrityError
+            client.owner = request.user  # Set the owner
+            client.save()  # Now it can be saved without IntegrityError
             return redirect('mailing:client_list')
     else:
         form = ClientForm()  # Creates blank form for the user to fill in
-    return render(request, 'mailing/client_form.html', {'form': form})
+    return render(request, 'mailing/client_form.html',
+                  {'form': form, 'can_view_users': request.user.has_perm('mailing.view_customuser'),
+                   'is_manager': is_manager(request.user)})
 
 
 @login_required
 def client_update(request, pk):
     client = get_object_or_404(Client, pk=pk)  # better use get_object_or_404 if no such client exists
     if request.method == 'POST':
-        form = ClientForm(request.POST, instance=client)  # populate the form with the data of the existing clien
+        form = ClientForm(request.POST, instance=client)
         if form.is_valid():
             form.save()
             return redirect('mailing:client_list')
     else:
         form = ClientForm(instance=client)
-    return render(request, 'mailing/client_form.html', {'form': form})  # dictionary,
-    # containing the form that is passed to the template
+
+    return render(request, 'mailing/client_form.html', {
+        'form': form,
+        'can_save': request.user.has_perm('mailing.change_client'),
+        'can_view_users': request.user.has_perm('mailing.view_customuser'),
+        'is_manager': is_manager(request.user),
+    })
 
 
 @login_required
@@ -52,15 +131,27 @@ def client_delete(request, pk):
     if request.method == 'POST':
         client.delete()
         return redirect('mailing:client_list')
-    return render(request, 'mailing/client_confirm_delete.html', {'client': client})
+    return render(request, 'mailing/client_confirm_delete.html',
+                  {'client': client, 'can_view_users': request.user.has_perm('mailing.view_customuser'),
+                   'is_manager': is_manager(request.user)})
 
 
 # CRUD FOR MESSAGE
 
 @login_required
 def message_list(request):
-    messages = Message.objects.all()
-    return render(request, 'mailing/message_list.html', {'messages': messages})
+    if request.user.is_staff:
+        messages = Message.objects.all()
+    elif is_manager(request.user):
+        messages = Message.objects.all()
+    else:
+        messages = Message.objects.filter(owner=request.user)
+
+    return render(request, 'mailing/message_list.html', {
+        'messages': messages,
+        'is_manager': is_manager(request.user),
+        'can_view_users': request.user.has_perm('mailing.view_customuser'),
+    })
 
 
 @login_required
@@ -68,11 +159,15 @@ def message_create(request):
     if request.method == 'POST':
         form = MessageForm(request.POST)
         if form.is_valid():
-            form.save()
+            message = form.save(commit=False)  # Don't save yet, only create the object, otherwise IntegrityError
+            message.owner = request.user  # Set the owner
+            message.save()  # Now it can be saved without IntegrityError
             return redirect('mailing:message_list')
     else:
         form = MessageForm()
-    return render(request, 'mailing/message_form.html', {'form': form})
+    return render(request, 'mailing/message_form.html',
+                  {'form': form, 'can_view_users': request.user.has_perm('mailing.view_customuser'),
+                   'is_manager': is_manager(request.user), })
 
 
 @login_required
@@ -85,7 +180,12 @@ def message_update(request, pk):
             return redirect('mailing:message_list')
     else:
         form = MessageForm(instance=message)
-    return render(request, 'mailing/message_form.html', {'form': form})
+
+    return render(request, 'mailing/message_form.html', {
+        'form': form,
+        'can_save': request.user.has_perm('mailing.change_message'),
+        'can_view_users': request.user.has_perm('mailing.view_customuser'), 'is_manager': is_manager(request.user),
+    })
 
 
 @login_required
@@ -94,15 +194,23 @@ def message_delete(request, pk):
     if request.method == 'POST':
         message.delete()
         return redirect('mailing:message_list')
-    return render(request, 'mailing/message_confirm_delete.html', {'message': message})
+    return render(request, 'mailing/message_confirm_delete.html',
+                  {'message': message, 'can_view_users': request.user.has_perm('mailing.view_customuser'),
+                   'is_manager': is_manager(request.user)})
 
 
 # CRUD FOR MAILING
 
 @login_required
 def mailing_list(request):
-    mailings = Mailing.objects.all()
-    return render(request, 'mailing/mailing_list.html', {'mailings': mailings})
+    if request.user.is_staff or is_manager(request.user):
+        mailings = Mailing.objects.all()
+    else:
+        mailings = Mailing.objects.filter(owner=request.user, is_active=True)
+
+    return render(request, 'mailing/mailing_list.html',
+                  {'mailings': mailings, 'is_manager': is_manager(request.user),
+                   'can_view_users': request.user.has_perm('mailing.view_customuser')})
 
 
 @login_required
@@ -122,7 +230,9 @@ def mailing_create(request):
             return redirect('mailing:mailing_list')
     else:
         form = MailingForm()
-    return render(request, 'mailing/mailing_form.html', {'form': form})
+    return render(request, 'mailing/mailing_form.html',
+                  {'form': form, 'can_view_users': request.user.has_perm('mailing.view_customuser'),
+                   'is_manager': is_manager(request.user), })
 
 
 @login_required
@@ -135,7 +245,9 @@ def mailing_update(request, pk):
             return redirect('mailing:mailing_list')
     else:
         form = MailingForm(instance=mailing)
-    return render(request, 'mailing/mailing_form.html', {'form': form})
+    return render(request, 'mailing/mailing_form.html',
+                  {'form': form, 'can_view_users': request.user.has_perm('mailing.view_customuser'),
+                   'is_manager': is_manager(request.user)})
 
 
 @login_required
@@ -144,4 +256,6 @@ def mailing_delete(request, pk):
     if request.method == 'POST':
         mailing.delete()
         return redirect('mailing:mailing_list')
-    return render(request, 'mailing/mailing_confirm_delete.html', {'mailing': mailing})
+    return render(request, 'mailing/mailing_confirm_delete.html',
+                  {'mailing': mailing, 'can_view_users': request.user.has_perm('mailing.view_customuser'),
+                   'is_manager': is_manager(request.user)})

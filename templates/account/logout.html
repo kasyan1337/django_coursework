@@ -1,0 +1,10 @@
+<!-- templates/account/logout.html -->
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="logout">
+    <h2>Logged Out</h2>
+    <p>You have successfully logged out.</p>
+    <a href="{% url 'account_login' %}">Login again</a>
+</div>
+{% endblock %}

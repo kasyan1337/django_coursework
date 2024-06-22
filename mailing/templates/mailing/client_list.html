@@ -5,12 +5,19 @@
 
 {% block content %}
 <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
-  <h2>Clients</h2>
-  <a href="{% url 'mailing:client_create' %}">Add new client</a>
-  <ul>
-    {% for client in clients %}
-      <li>{{ client.email }} - <a href="{% url 'mailing:client_update' client.pk %}">Edit</a> - <a href="{% url 'mailing:client_delete' client.pk %}">Delete</a></li>
-    {% endfor %}
-  </ul>
+    <h2>Clients</h2>
+    <a href="{% url 'mailing:client_create' %}">Add new client</a>
+    <ul>
+        {% for client in clients %}
+        <li><span class="p-2"> Author: {{ client.owner }}</span> Client: {{ client.email }} -
+            {% if client.owner == user or request.user.is_staff %}
+            <a href="{% url 'mailing:client_update' client.pk %}">Edit</a> -
+            <a href="{% url 'mailing:client_delete' client.pk %}">Delete</a></li>
+            {% elif is_manager %}
+                <a href="{% url 'mailing:client_update' client.pk %}">View</a>
+            {% endif %}
+
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}
