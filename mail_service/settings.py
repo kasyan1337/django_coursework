@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'allauth.account',  # Added manually
     'allauth.socialaccount',  # Added manually
     'mailing',  # custom app
+    'blog', # custom app
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -113,6 +114,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+MEDIA_URL = '/blog_images/'
+MEDIA_ROOT = BASE_DIR / 'blog_images'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
