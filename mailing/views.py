@@ -1,18 +1,39 @@
+import random
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.cache import cache_page
 
+from blog.models import Blog
 from .forms import ClientForm, MessageForm, MailingForm
 from .models import Client, Message, Mailing, CustomUser
 
 User = get_user_model()
 
 
+@cache_page(60 * 15)  # 15 minutes
 def home(request):
-    return render(request, 'mailing/home.html', {'can_view_users': request.user.has_perm('mailing.view_customuser'),
-                                                 'is_manager': is_manager(request.user), })
+    total_mailings = Mailing.objects.count()
+    active_mailings = Mailing.objects.filter(is_active=True).count()
+    unique_clients = Client.objects.values('email').distinct().count()
+
+    # Get all blog articles and select 3 random ones
+    all_articles = list(Blog.objects.all())
+    random_articles = random.sample(all_articles, min(len(all_articles), 3))
+
+    context = {
+        'total_mailings': total_mailings,
+        'active_mailings': active_mailings,
+        'unique_clients': unique_clients,
+        'random_articles': random_articles,
+        'can_view_users': request.user.has_perm('mailing.view_customuser'),
+        'is_manager': is_manager(request.user),
+    }
+
+    return render(request, 'mailing/home.html', context)
 
 
 def is_manager(user):

@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'allauth.account',  # Added manually
     'allauth.socialaccount',  # Added manually
     'mailing',  # custom app
+    'blog', # custom app
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -114,6 +115,9 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+MEDIA_URL = '/blog_images/'
+MEDIA_ROOT = BASE_DIR / 'blog_images'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -128,3 +132,10 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', default=False) == 'True'
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', default=False) == 'True'
 
 AUTH_USER_MODEL = 'mailing.CustomUser'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('LOCATION'),
+    }
+}

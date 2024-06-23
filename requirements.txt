@@ -2,3 +2,4 @@ django
 django-apscheduler
 django-allauth
 python-dotenv
+django-redis

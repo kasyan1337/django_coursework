@@ -2,11 +2,28 @@
 {% extends 'base_generic.html' %}
 {% block content %}
 <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
-    <body>
-    <h1>Mailing Service home page</h1>
-    <a href="{% url 'mailing:client_list' %}">Clients</a>
-    <a href="{% url 'mailing:message_list' %}">Messages</a>
-    <a href="{% url 'mailing:mailing_list' %}">Mailings</a>
-    </body>
+    <h1>Mailing Service Home Page</h1>
+    <nav>
+        <a href="{% url 'mailing:client_list' %}">Clients</a>
+        <a href="{% url 'mailing:message_list' %}">Messages</a>
+        <a href="{% url 'mailing:mailing_list' %}">Mailings</a>
+    </nav>
+    <h4>Stats</h4>
+    <p>Total Mailings: {{ total_mailings }}</p>
+    <p>Active Mailings: {{ active_mailings }}</p>
+    <p>Unique Clients: {{ unique_clients }}</p>
+
+    <h2>Articles</h2>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+        {% for article in random_articles %}
+        <div style="width: 30%; margin: 10px; border: 1px solid #ccc; padding: 10px;">
+            <h3>{{ article.title }}</h3>
+            {% if article.image %}
+            <img src="{{ article.image.url }}" alt="{{ article.title }}" style="width: 100%; height: auto;">
+            {% endif %}
+            <p>{{ article.content|truncatewords:30 }}</p>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
