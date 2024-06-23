@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.cache import cache_page
 
 from blog.models import Blog
 from .forms import ClientForm, MessageForm, MailingForm
@@ -13,6 +14,7 @@ from .models import Client, Message, Mailing, CustomUser
 User = get_user_model()
 
 
+@cache_page(60 * 15)  # 15 minutes
 def home(request):
     total_mailings = Mailing.objects.count()
     active_mailings = Mailing.objects.filter(is_active=True).count()

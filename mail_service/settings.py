@@ -132,3 +132,10 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', default=False) == 'True'
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', default=False) == 'True'
 
 AUTH_USER_MODEL = 'mailing.CustomUser'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('LOCATION'),
+    }
+}
